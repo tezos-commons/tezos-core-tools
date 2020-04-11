@@ -36,10 +36,10 @@ const validMnemonic = (mnemonic: string) => {
 }
 
 const mnemonic2seed = (mnemonic: string, passphrase = '') => {
-	if (!validMnemonic(mnemonic)) {
-		throw new Error('InvalidMnemonic');
-	}
-	return (bip39.mnemonicToSeedSync(mnemonic, passphrase)).slice(0, 32);
+  if (!validMnemonic(mnemonic)) {
+    throw new Error('InvalidMnemonic');
+  }
+  return (bip39.mnemonicToSeedSync(mnemonic, passphrase)).slice(0, 32);
 }
 
 const validAddress = (address: string) => {
