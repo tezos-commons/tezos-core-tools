@@ -1,5 +1,5 @@
 {
-  "name": "tezos-core",
+  "name": "tezos-core-tools",
   "private": true,
   "devDependencies": {
     "lerna": "^3.20.2"
