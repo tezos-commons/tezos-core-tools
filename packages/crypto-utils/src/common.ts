@@ -68,5 +68,5 @@ export {
   hex2pk,
   pk2pkh,
   buf2hex,
-  prefix,
+  prefix
 }
