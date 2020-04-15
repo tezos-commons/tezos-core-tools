@@ -1,7 +1,8 @@
 import { 
   b58cdecode,
   buf2hex,
-  prefix
+  prefix,
+  addressToHex
 } from '../../crypto-utils/src/common';
 
 const getContractDelegation = (pkh) => {
@@ -44,7 +45,7 @@ const getContractPkhTransaction = (to, amount) => {
         args:
           [{ prim: 'key_hash' },
           {
-            'bytes': tz2hex(to)
+            'bytes': addressToHex(to)
           }]
       },
       { prim: 'IMPLICIT_ACCOUNT' },
@@ -67,7 +68,7 @@ const getContractKtTransaction = (to, amount) => {
       prim: 'PUSH',
       args:
         [{ prim: 'address' },
-        { 'bytes': kt2hex(to) }]
+        { 'bytes': addressToHex(to) }]
     },
     { prim: 'CONTRACT', args: [{ prim: 'unit' }] },
     [{
@@ -83,25 +84,6 @@ const getContractKtTransaction = (to, amount) => {
     { prim: 'UNIT' }, { prim: 'TRANSFER_TOKENS' },
     { prim: 'CONS' }]
   };
-}
-
-const kt2hex = (kt) => {
-  if (kt.slice(0, 2) === 'KT') {
-    return ('01' + buf2hex(b58cdecode(kt, prefix.KT)) + '00');
-  }
-  return kt;
-}
-
-const tz2hex = (tz: string) => {
-  let pkHex;
-  if (tz.slice(0, 3) === 'tz1') {
-    pkHex = '00' + buf2hex(b58cdecode(tz, prefix.tz1));
-  } else if (tz.slice(0, 3) === 'tz2') {
-    pkHex = '01' + buf2hex(b58cdecode(tz, prefix.tz2));
-  } else if (tz.slice(0, 3) === 'tz3') {
-    pkHex = '02' + buf2hex(b58cdecode(tz, prefix.tz3));
-  }
-  return pkHex;
 }
 
 const getManagerScript = (pkh: string) => {
@@ -319,7 +301,5 @@ export {
   getContractDelegation,
   getContractPkhTransaction,
   getContractKtTransaction,
-  kt2hex,
-  tz2hex,
   getManagerScript
 }

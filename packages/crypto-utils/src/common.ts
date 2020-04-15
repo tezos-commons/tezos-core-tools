@@ -38,6 +38,23 @@ const buf2hex = (buffer) => {
   return hexParts.join('');
 }
 
+const addressToHex = (address) => {
+  let pkHex;
+
+  if (address.slice(0, 2) === 'KT') {
+    pkHex = ('01' + buf2hex(b58cdecode(address, prefix.KT)) + '00');
+  } else if (address.slice(0, 3) === 'tz1') {
+    pkHex = '00' + buf2hex(b58cdecode(address, prefix.tz1));
+  } else if (address.slice(0, 3) === 'tz2') {
+    pkHex = '01' + buf2hex(b58cdecode(address, prefix.tz2));
+  } else if (address.slice(0, 3) === 'tz3') {
+    pkHex = '02' + buf2hex(b58cdecode(address, prefix.tz3));
+  } else {
+    pkHex = address;
+  }
+  return pkHex;
+}
+
 const b58cencode = (payload: any, prefixx?: Uint8Array) => {
   const n = new Uint8Array(prefixx.length + payload.length);
   n.set(prefixx);
@@ -68,5 +85,6 @@ export {
   hex2pk,
   pk2pkh,
   buf2hex,
-  prefix
+  prefix,
+  addressToHex
 }
