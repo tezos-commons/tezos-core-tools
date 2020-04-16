@@ -19,7 +19,7 @@ const createKTaddress = (sopBytes: string): string => {
   return b58cencode(hash2, prefix.KT);
 }
 
-const seed2keyPair = (seed: Buffer): KeyPair => {
+const seedToKeyPair = (seed: Buffer): KeyPair => {
   if (!seed) {
     throw new Error('NullSeed');
   }
@@ -35,7 +35,7 @@ const validMnemonic = (mnemonic: string) => {
   return bip39.validateMnemonic(mnemonic);
 }
 
-const mnemonic2seed = (mnemonic: string, passphrase = '') => {
+const mnemonicToSeed = (mnemonic: string, passphrase = '') => {
   if (!validMnemonic(mnemonic)) {
     throw new Error('InvalidMnemonic');
   }
@@ -75,18 +75,18 @@ const verify = (bytes: string, sig: string, pk: string): boolean => {
   return libs.crypto_sign_verify_detached(signature, hash, publicKey);
 }
 
-const sig2edsig = (sig: string): any => {
+const sigToEdsig = (sig: string): any => {
   return b58cencode(hexToBuf(sig), prefix.edsig);
 }
 
 export {
   createKTaddress,
-  seed2keyPair,
-  mnemonic2seed,
+  seedToKeyPair,
+  mnemonicToSeed,
   validMnemonic,
   validAddress,
   generateMnemonic,
   sign,
   verify,
-  sig2edsig,
+  sigToEdsig,
 }
