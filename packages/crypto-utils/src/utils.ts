@@ -7,13 +7,13 @@ import {
   b58cencode,
   b58cdecode,
   mergebuf,
-  hex2buf,
-  buf2hex,
+  hexToBuf,
+  bufToHex,
   prefix
 } from './common';
 
 const createKTaddress = (sopBytes: string): string => {
-  const hash = libs.crypto_generichash(32, hex2buf(sopBytes));
+  const hash = libs.crypto_generichash(32, hexToBuf(sopBytes));
   const index = new Uint8Array([0, 0, 0, 0]);
   const hash2 = libs.crypto_generichash(20, mergebuf(index, hash));
   return b58cencode(hash2, prefix.KT);
@@ -56,10 +56,10 @@ const generateMnemonic = (): string => {
 }
 
 const sign = (bytes, sk): any => {
-  const hash = libs.crypto_generichash(32, mergebuf(hex2buf(bytes)));
+  const hash = libs.crypto_generichash(32, mergebuf(hexToBuf(bytes)));
   const sig = libs.crypto_sign_detached(hash, b58cdecode(sk, prefix.edsk), 'uint8array');
   const edsig = b58cencode(sig, prefix.edsig);
-  const sbytes = bytes + buf2hex(sig);
+  const sbytes = bytes + bufToHex(sig);
   return {
     bytes: bytes,
     sig: sig,
@@ -69,14 +69,14 @@ const sign = (bytes, sk): any => {
 }
 
 const verify = (bytes: string, sig: string, pk: string): boolean => {
-  const hash = libs.crypto_generichash(32, mergebuf(hex2buf(bytes)));
+  const hash = libs.crypto_generichash(32, mergebuf(hexToBuf(bytes)));
   const signature = b58cdecode(sig, prefix.sig);
   const publicKey = b58cdecode(pk, prefix.edpk);
   return libs.crypto_sign_verify_detached(signature, hash, publicKey);
 }
 
 const sig2edsig = (sig: string): any => {
-  return b58cencode(hex2buf(sig), prefix.edsig);
+  return b58cencode(hexToBuf(sig), prefix.edsig);
 }
 
 export {

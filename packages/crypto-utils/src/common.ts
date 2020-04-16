@@ -22,13 +22,13 @@ const mergebuf = (b, wm = new Uint8Array([3])) => {
   return r;
 }
 
-const hex2buf = (hex) => {
+const hexToBuf = (hex) => {
   return new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
     return parseInt(h, 16);
   }));
 }
 
-const buf2hex = (buffer) => {
+const bufToHex = (buffer) => {
   const byteArray = new Uint8Array(buffer), hexParts = [];
   for (let i = 0; i < byteArray.length; i++) {
     const hex = byteArray[i].toString(16);
@@ -42,15 +42,15 @@ const addressToHex = (address) => {
   let pkHex;
 
   if (address.slice(0, 2) === 'KT') {
-    pkHex = ('01' + buf2hex(b58cdecode(address, prefix.KT)) + '00');
+    pkHex = ('01' + bufToHex(b58cdecode(address, prefix.KT)) + '00');
   } else if (address.slice(0, 3) === 'tz1') {
-    pkHex = '00' + buf2hex(b58cdecode(address, prefix.tz1));
+    pkHex = '00' + bufToHex(b58cdecode(address, prefix.tz1));
   } else if (address.slice(0, 3) === 'tz2') {
-    pkHex = '01' + buf2hex(b58cdecode(address, prefix.tz2));
+    pkHex = '01' + bufToHex(b58cdecode(address, prefix.tz2));
   } else if (address.slice(0, 3) === 'tz3') {
-    pkHex = '02' + buf2hex(b58cdecode(address, prefix.tz3));
+    pkHex = '02' + bufToHex(b58cdecode(address, prefix.tz3));
   } else {
-    pkHex = address;
+    throw new TypeError("Invalid public key hash");
   }
   return pkHex;
 }
@@ -59,7 +59,7 @@ const b58cencode = (payload: any, prefixx?: Uint8Array) => {
   const n = new Uint8Array(prefixx.length + payload.length);
   n.set(prefixx);
   n.set(payload, prefixx.length);
-  return Bs58check.encode(Buffer.from(buf2hex(n), 'hex'));
+  return Bs58check.encode(Buffer.from(bufToHex(n), 'hex'));
 }
 
 const b58cdecode = (enc, prefixx) => {
@@ -68,8 +68,8 @@ const b58cdecode = (enc, prefixx) => {
   return n;
 }
 
-const hex2pk = (hex: string): string => {
-  return b58cencode(hex2buf(hex.slice(2, 66)), prefix.edpk);
+const hexToPk = (hex: string): string => {
+  return b58cencode(hexToBuf(hex.slice(2, 66)), prefix.edpk);
 }
 
 const pk2pkh = (pk: string): string => {
@@ -81,10 +81,10 @@ export {
   b58cencode,
   b58cdecode,
   mergebuf,
-  hex2buf,
-  hex2pk,
+  hexToBuf,
+  hexToPk,
   pk2pkh,
-  buf2hex,
+  bufToHex,
   prefix,
   addressToHex
 }
