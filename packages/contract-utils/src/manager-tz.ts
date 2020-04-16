@@ -1,6 +1,6 @@
 import { 
   b58cdecode,
-  buf2hex,
+  bufToHex,
   prefix,
   addressToHex
 } from '../../crypto-utils/src/common';
@@ -8,7 +8,7 @@ import {
 const getContractDelegation = (pkh) => {
   let pkHex: string;
   if (pkh.slice(0, 2) === 'tz') {
-    pkHex = '00' + buf2hex(b58cdecode(pkh, prefix.tz1));
+    pkHex = '00' + bufToHex(b58cdecode(pkh, prefix.tz1));
   } else {
     pkHex = pkh;
   }
@@ -89,7 +89,7 @@ const getContractKtTransaction = (to, amount) => {
 const getManagerScript = (pkh: string) => {
   let pkHex: string;
   if (pkh.slice(0, 2) === 'tz') {
-    pkHex = '00' + buf2hex(b58cdecode(pkh, prefix.tz1));
+    pkHex = '00' + bufToHex(b58cdecode(pkh, prefix.tz1));
   } else {
     pkHex = pkh;
   }

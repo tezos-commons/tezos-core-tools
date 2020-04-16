@@ -1,6 +1,6 @@
 import { addressToHex } from './common';
 
-describe('#validAddress', () => {
+describe('#addressToHex', () => {
   describe('valid tz1 address', () => {
     let address;
 

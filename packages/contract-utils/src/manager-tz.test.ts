@@ -1,7 +1,7 @@
 import { getContractDelegation } from './manager-tz';
 import { 
   b58cdecode,
-  buf2hex,
+  bufToHex,
   prefix
 } from '../../crypto-utils/src/common';
 
@@ -14,7 +14,7 @@ describe('#getContractDelegation', () => {
     });
 
     it('returns with hexed tz', () => {
-      var pkHex = '00' + buf2hex(b58cdecode(pkh, prefix.tz1));
+      var pkHex = '00' + bufToHex(b58cdecode(pkh, prefix.tz1));
       var expected = {
         entrypoint: 'do', 
         value:
