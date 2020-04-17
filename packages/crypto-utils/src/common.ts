@@ -1,5 +1,5 @@
-import * as libs from 'libsodium-wrappers';
 import * as Bs58check from 'bs58check';
+import { blake2b } from 'blakejs';
 
 const prefix = {
   tz1: new Uint8Array([6, 161, 159]),
@@ -12,61 +12,64 @@ const prefix = {
   o: new Uint8Array([5, 116]),
   B: new Uint8Array([1, 52]),
   TZ: new Uint8Array([3, 99, 29]),
-  KT: new Uint8Array([2, 90, 121])
+  KT1: new Uint8Array([2, 90, 121]),
 };
 
-const mergebuf = (b, wm = new Uint8Array([3])) => {
+const mergebuf = (b: Uint8Array, wm: Uint8Array = Uint8Array.from([3])) => {
   const r = new Uint8Array(wm.length + b.length);
   r.set(wm);
   r.set(b, wm.length);
   return r;
-}
+};
 
-const hex2buf = (hex) => {
-  return new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
-    return parseInt(h, 16);
-  }));
-}
+const hex2buf = (hex: string): Uint8Array => {
+  return Uint8Array.from(
+    hex.match(/[\da-f]{2}/gi).map(function (h) {
+      return parseInt(h, 16);
+    })
+  );
+};
 
-const buf2hex = (buffer) => {
-  const byteArray = new Uint8Array(buffer), hexParts = [];
+const buf2hex = (buffer: Uint8Array): string => {
+  const byteArray = Uint8Array.from(buffer),
+    hexParts = [];
   for (let i = 0; i < byteArray.length; i++) {
     const hex = byteArray[i].toString(16);
     const paddedHex = ('00' + hex).slice(-2);
     hexParts.push(paddedHex);
   }
   return hexParts.join('');
-}
+};
 
-const b58cencode = (payload: any, prefixx?: Uint8Array) => {
+const base58encode = (payload: any, prefixx?: Uint8Array) => {
   const n = new Uint8Array(prefixx.length + payload.length);
   n.set(prefixx);
   n.set(payload, prefixx.length);
   return Bs58check.encode(Buffer.from(buf2hex(n), 'hex'));
-}
+};
 
-const b58cdecode = (enc, prefixx) => {
+const base58decode = (enc, prefixx) => {
   let n = Bs58check.decode(enc);
   n = n.slice(prefixx.length);
   return n;
-}
+};
 
 const hex2pk = (hex: string): string => {
-  return b58cencode(hex2buf(hex.slice(2, 66)), prefix.edpk);
-}
+  return base58encode(hex2buf(hex.slice(2, 66)), prefix.edpk);
+};
 
 const pk2pkh = (pk: string): string => {
-  const pkDecoded = b58cdecode(pk, prefix.edpk);
-  return b58cencode(libs.crypto_generichash(20, pkDecoded), prefix.tz1);
-}
+  const pkDecoded = base58decode(pk, prefix.edpk);
+  return base58encode(blake2b(pkDecoded, null, 20), prefix.tz1);
+};
 
 export {
-  b58cencode,
-  b58cdecode,
+  base58encode,
+  base58decode,
   mergebuf,
   hex2buf,
   hex2pk,
   pk2pkh,
   buf2hex,
   prefix,
-}
+};
