@@ -1,7 +1,7 @@
 import * as bip39 from 'bip39';
 import { blake2b } from 'blakejs';
 import { sign as naclSign } from 'tweetnacl';
-import { KeyPair } from './interfaces';
+import { KeyPair, SignedOps } from './interfaces';
 import {
   base58encode,
   base58decode,
@@ -11,12 +11,16 @@ import {
   prefix as _prefix
 } from './common';
 
-const generateMnemonic = (numberOfWords: number = 15): string => {
+const generateMnemonic = (numberOfWords = 15): string => {
   if ([15, 18, 21, 24].indexOf(numberOfWords) !== -1) {
     return bip39.generateMnemonic((numberOfWords * 32) / 3);
   } else {
     throw new Error('InvalidNumberOfWords');
   }
+};
+
+const validMnemonic = (mnemonic: string): boolean => {
+  return bip39.validateMnemonic(mnemonic);
 };
 
 const mnemonic2seed = (mnemonic: string, passphrase = ''): Buffer => {
@@ -45,31 +49,6 @@ const deriveContractAddress = async (sopBytes: string, n = 0): Promise<string> =
   return base58encode(hash2, _prefix.KT1);
 };
 
-const validMnemonic = (mnemonic: string): boolean => {
-  return bip39.validateMnemonic(mnemonic);
-};
-
-const validAddress = (address: string): boolean => {
-  return validImplicitAddress(address) || validContractAddress(address);
-};
-
-const validImplicitAddress = (address: string): boolean => {
-  return (
-    address.length === 36 &&
-    (validBase58string(address, 'tz1') ||
-      validBase58string(address, 'tz2') ||
-      validBase58string(address, 'tz3'))
-  );
-};
-
-const validContractAddress = (address: string): boolean => {
-  return address.length === 36 && validBase58string(address, 'KT1');
-};
-
-const validOperationHash = (opHash: string): boolean => {
-  return opHash.length === 51 && validBase58string(opHash, 'o');
-};
-
 const validBase58string = (base58string: string, prefix: string): boolean => {
   try {
     let b58prefix: Uint8Array;
@@ -88,7 +67,28 @@ const validBase58string = (base58string: string, prefix: string): boolean => {
   }
 };
 
-const sign = (bytes: string, sk: string): any => {
+const validImplicitAddress = (address: string): boolean => {
+  return (
+    address.length === 36 &&
+    (validBase58string(address, 'tz1') ||
+      validBase58string(address, 'tz2') ||
+      validBase58string(address, 'tz3'))
+  );
+};
+
+const validContractAddress = (address: string): boolean => {
+  return address.length === 36 && validBase58string(address, 'KT1');
+};
+
+const validAddress = (address: string): boolean => {
+  return validImplicitAddress(address) || validContractAddress(address);
+};
+
+const validOperationHash = (opHash: string): boolean => {
+  return opHash.length === 51 && validBase58string(opHash, 'o');
+};
+
+const sign = (bytes: string, sk: string): SignedOps => {
   const hash = blake2b(mergebuf(hex2buf(bytes)), null, 32);
   const sig = naclSign.detached(hash, base58decode(sk, _prefix.edsk));
   const edsig = base58encode(sig, _prefix.edsig);

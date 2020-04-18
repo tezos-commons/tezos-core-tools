@@ -15,7 +15,7 @@ const prefix = {
   KT1: new Uint8Array([2, 90, 121]),
 };
 
-const mergebuf = (b: Uint8Array, wm: Uint8Array = Uint8Array.from([3])) => {
+const mergebuf = (b: Uint8Array, wm = Uint8Array.from([3])): Uint8Array => {
   const r = new Uint8Array(wm.length + b.length);
   r.set(wm);
   r.set(b, wm.length);
@@ -41,14 +41,14 @@ const buf2hex = (buffer: Uint8Array): string => {
   return hexParts.join('');
 };
 
-const base58encode = (payload: any, prefixx?: Uint8Array) => {
+const base58encode = (payload: Uint8Array, prefixx?: Uint8Array): string => {
   const n = new Uint8Array(prefixx.length + payload.length);
   n.set(prefixx);
   n.set(payload, prefixx.length);
   return Bs58check.encode(Buffer.from(buf2hex(n), 'hex'));
 };
 
-const base58decode = (enc, prefixx) => {
+const base58decode = (enc: string, prefixx: Uint8Array): Uint8Array => {
   let n = Bs58check.decode(enc);
   n = n.slice(prefixx.length);
   return n;
