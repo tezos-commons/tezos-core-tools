@@ -1,10 +1,5 @@
 import {
-  base58encode,
-  base58decode,
-  mergebuf,
   hex2buf,
-  hex2pk,
-  pk2pkh,
   buf2hex
 } from './common';
 
