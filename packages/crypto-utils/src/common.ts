@@ -1,4 +1,3 @@
-import * as libs from 'libsodium-wrappers';
 import * as Bs58check from 'bs58check';
 
 const prefix = {
@@ -12,79 +11,58 @@ const prefix = {
   o: new Uint8Array([5, 116]),
   B: new Uint8Array([1, 52]),
   TZ: new Uint8Array([3, 99, 29]),
-  KT: new Uint8Array([2, 90, 121])
+  KT1: new Uint8Array([2, 90, 121]),
 };
 
-const mergebuf = (b, wm = new Uint8Array([3])) => {
+const mergebuf = (b: Uint8Array, wm = Uint8Array.from([3])): Uint8Array => {
   const r = new Uint8Array(wm.length + b.length);
   r.set(wm);
   r.set(b, wm.length);
   return r;
-}
+};
 
-const hexToBuf = (hex) => {
-  return new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
-    return parseInt(h, 16);
-  }));
-}
+const hexToBuf = (hex: string): Uint8Array => {
+  return Uint8Array.from(
+    hex.match(/[\da-f]{2}/gi).map(function (h) {
+      return parseInt(h, 16);
+    })
+  );
+};
 
-const bufToHex = (buffer) => {
-  const byteArray = new Uint8Array(buffer), hexParts = [];
+const bufToHex = (buffer: Uint8Array): string => {
+  const byteArray = Uint8Array.from(buffer),
+    hexParts = [];
   for (let i = 0; i < byteArray.length; i++) {
     const hex = byteArray[i].toString(16);
     const paddedHex = ('00' + hex).slice(-2);
     hexParts.push(paddedHex);
   }
   return hexParts.join('');
-}
+};
 
-const addressToHex = (address) => {
-  let pkHex;
-
-  if (address.slice(0, 2) === 'KT') {
-    pkHex = ('01' + bufToHex(b58cdecode(address, prefix.KT)) + '00');
-  } else if (address.slice(0, 3) === 'tz1') {
-    pkHex = '00' + bufToHex(b58cdecode(address, prefix.tz1));
-  } else if (address.slice(0, 3) === 'tz2') {
-    pkHex = '01' + bufToHex(b58cdecode(address, prefix.tz2));
-  } else if (address.slice(0, 3) === 'tz3') {
-    pkHex = '02' + bufToHex(b58cdecode(address, prefix.tz3));
-  } else {
-    throw new TypeError("Invalid public key hash");
-  }
-  return pkHex;
-}
-
-const b58cencode = (payload: any, prefixx?: Uint8Array) => {
+const base58encode = (payload: Uint8Array, prefixx?: Uint8Array): string => {
   const n = new Uint8Array(prefixx.length + payload.length);
   n.set(prefixx);
   n.set(payload, prefixx.length);
   return Bs58check.encode(Buffer.from(bufToHex(n), 'hex'));
-}
+};
 
-const b58cdecode = (enc, prefixx) => {
+const base58decode = (enc: string, prefixx: Uint8Array): Uint8Array => {
   let n = Bs58check.decode(enc);
   n = n.slice(prefixx.length);
   return n;
-}
+};
 
 const hexToPk = (hex: string): string => {
-  return b58cencode(hexToBuf(hex.slice(2, 66)), prefix.edpk);
-}
-
-const pk2pkh = (pk: string): string => {
-  const pkDecoded = b58cdecode(pk, prefix.edpk);
-  return b58cencode(libs.crypto_generichash(20, pkDecoded), prefix.tz1);
-}
+  return base58encode(hexToBuf(hex.slice(2, 66)), prefix.edpk);
+};
 
 export {
-  b58cencode,
-  b58cdecode,
+  base58encode,
+  base58decode,
   mergebuf,
   hexToBuf,
   hexToPk,
-  pk2pkh,
   bufToHex,
   prefix,
-  addressToHex
-}
+};

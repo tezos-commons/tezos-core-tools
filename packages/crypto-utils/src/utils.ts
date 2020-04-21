@@ -1,92 +1,147 @@
-import * as libs from 'libsodium-wrappers';
 import * as bip39 from 'bip39';
-import { Buffer } from 'buffer';
-
-import { KeyPair } from './interfaces';
-import { 
-  b58cencode,
-  b58cdecode,
+import { blake2b } from 'blakejs';
+import { sign as naclSign } from 'tweetnacl';
+import { KeyPair, SignedOps } from './interfaces';
+import {
+  base58encode,
+  base58decode,
   mergebuf,
   hexToBuf,
   bufToHex,
-  prefix
+  prefix as _prefix,
 } from './common';
 
-const createKTaddress = (sopBytes: string): string => {
-  const hash = libs.crypto_generichash(32, hexToBuf(sopBytes));
-  const index = new Uint8Array([0, 0, 0, 0]);
-  const hash2 = libs.crypto_generichash(20, mergebuf(index, hash));
-  return b58cencode(hash2, prefix.KT);
-}
-
-const seedToKeyPair = (seed: Buffer): KeyPair => {
-  if (!seed) {
-    throw new Error('NullSeed');
+const generateMnemonic = (numberOfWords = 15): string => {
+  if ([15, 18, 21, 24].indexOf(numberOfWords) !== -1) {
+    return bip39.generateMnemonic((numberOfWords * 32) / 3);
+  } else {
+    throw new Error('InvalidNumberOfWords');
   }
-  const keyPair = libs.crypto_sign_seed_keypair(seed);
-  return {
-    sk: b58cencode(keyPair.privateKey, prefix.edsk),
-    pk: b58cencode(keyPair.publicKey, prefix.edpk),
-    pkh: b58cencode(libs.crypto_generichash(20, keyPair.publicKey), prefix.tz1)
-  };
-}
+};
 
-const validMnemonic = (mnemonic: string) => {
+const validMnemonic = (mnemonic: string): boolean => {
   return bip39.validateMnemonic(mnemonic);
-}
+};
 
-const mnemonicToSeed = (mnemonic: string, passphrase = '') => {
+const mnemonic2seed = (mnemonic: string, passphrase = ''): Buffer => {
   if (!validMnemonic(mnemonic)) {
     throw new Error('InvalidMnemonic');
   }
-  return (bip39.mnemonicToSeedSync(mnemonic, passphrase)).slice(0, 32);
-}
+  return bip39.mnemonicToSeedSync(mnemonic, passphrase).slice(0, 32);
+};
 
-const validAddress = (address: string) => {
+const seed2keyPair = async (seed: Buffer): Promise<KeyPair> => {
+  if (!seed) {
+    throw new Error('NullSeed');
+  }
+  const keyPair = naclSign.keyPair.fromSeed(seed);
+  return {
+    sk: base58encode(keyPair.secretKey, _prefix.edsk),
+    pk: base58encode(keyPair.publicKey, _prefix.edpk),
+    pkh: base58encode(blake2b(keyPair.publicKey, null, 20), _prefix.tz1),
+  };
+};
+
+const deriveContractAddress = async (
+  sopBytes: string,
+  n = 0
+): Promise<string> => {
+  const hash = blake2b(mergebuf(hexToBuf(sopBytes)), null, 32);
+  const index = new Uint8Array([0, 0, 0, n]);
+  const hash2 = blake2b(mergebuf(index, hash), null, 32);
+  return base58encode(hash2, _prefix.KT1);
+};
+
+const validBase58string = (base58string: string, prefix: string): boolean => {
   try {
-    b58cdecode(address, prefix.tz1);
+    let b58prefix: Uint8Array;
+    if (
+      base58string.slice(0, prefix.length) === prefix &&
+      Object.prototype.hasOwnProperty.call(_prefix, prefix)
+    ) {
+      b58prefix = _prefix[prefix];
+    } else {
+      return false;
+    }
+    base58decode(base58string, b58prefix);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
-}
+};
 
-const generateMnemonic = (): string => {
-  return bip39.generateMnemonic(160);
-}
+const validImplicitAddress = (address: string): boolean => {
+  return (
+    address.length === 36 &&
+    (validBase58string(address, 'tz1') ||
+      validBase58string(address, 'tz2') ||
+      validBase58string(address, 'tz3'))
+  );
+};
 
-const sign = (bytes, sk): any => {
-  const hash = libs.crypto_generichash(32, mergebuf(hexToBuf(bytes)));
-  const sig = libs.crypto_sign_detached(hash, b58cdecode(sk, prefix.edsk), 'uint8array');
-  const edsig = b58cencode(sig, prefix.edsig);
+const validContractAddress = (address: string): boolean => {
+  return address.length === 36 && validBase58string(address, 'KT1');
+};
+
+const validAddress = (address: string): boolean => {
+  return validImplicitAddress(address) || validContractAddress(address);
+};
+
+const validOperationHash = (opHash: string): boolean => {
+  return opHash.length === 51 && validBase58string(opHash, 'o');
+};
+
+const addressToHex = (address: string): string => {
+  if (!validAddress(address)) {
+    throw new TypeError('Invalid address');
+  } else if (address.slice(0, 2) === 'KT') {
+    return '01' + bufToHex(base58decode(address, _prefix.KT1)) + '00';
+  } else if (address.slice(0, 3) === 'tz1') {
+    return '00' + bufToHex(base58decode(address, _prefix.tz1));
+  } else if (address.slice(0, 3) === 'tz2') {
+    return '01' + bufToHex(base58decode(address, _prefix.tz2));
+  } else if (address.slice(0, 3) === 'tz3') {
+    return '02' + bufToHex(base58decode(address, _prefix.tz3));
+  } else {
+    throw new Error('Base58DecodingError');
+  }
+};
+
+const sign = (bytes: string, sk: string): SignedOps => {
+  const hash = blake2b(mergebuf(hexToBuf(bytes)), null, 32);
+  const sig = naclSign.detached(hash, base58decode(sk, _prefix.edsk));
+  const edsig = base58encode(sig, _prefix.edsig);
   const sbytes = bytes + bufToHex(sig);
   return {
-    bytes: bytes,
-    sig: sig,
-    edsig: edsig,
-    sbytes: sbytes,
+    bytes,
+    sig,
+    edsig,
+    sbytes,
   };
-}
-
-const verify = (bytes: string, sig: string, pk: string): boolean => {
-  const hash = libs.crypto_generichash(32, mergebuf(hexToBuf(bytes)));
-  const signature = b58cdecode(sig, prefix.sig);
-  const publicKey = b58cdecode(pk, prefix.edpk);
-  return libs.crypto_sign_verify_detached(signature, hash, publicKey);
-}
+};
 
 const sigToEdsig = (sig: string): any => {
-  return b58cencode(hexToBuf(sig), prefix.edsig);
-}
+  return base58encode(hexToBuf(sig), _prefix.edsig);
+};
+
+const pkToPkh = (pk: string): string => {
+  const pkDecoded = base58decode(pk, _prefix.edpk);
+  return base58encode(blake2b(pkDecoded, null, 20), _prefix.tz1);
+};
 
 export {
-  createKTaddress,
-  seedToKeyPair,
-  mnemonicToSeed,
+  generateMnemonic,
+  mnemonic2seed,
+  seed2keyPair,
   validMnemonic,
   validAddress,
-  generateMnemonic,
+  validImplicitAddress,
+  validContractAddress,
+  validOperationHash,
+  validBase58string,
+  deriveContractAddress,
   sign,
-  verify,
   sigToEdsig,
-}
+  addressToHex,
+  pkToPkh,
+};

@@ -3,3 +3,10 @@ export interface KeyPair {
   pk: string | null;
   pkh: string;
 }
+
+export interface SignedOps {
+  bytes: string;
+  sig: Uint8Array;
+  edsig: string;
+  sbytes: string;
+}
