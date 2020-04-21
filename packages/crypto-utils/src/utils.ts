@@ -30,7 +30,7 @@ const mnemonic2seed = (mnemonic: string, passphrase = ''): Buffer => {
   return bip39.mnemonicToSeedSync(mnemonic, passphrase).slice(0, 32);
 };
 
-const seed2keyPair = async (seed: Buffer): Promise<KeyPair> => {
+const seed2keyPair = (seed: Buffer): KeyPair => {
   if (!seed) {
     throw new Error('NullSeed');
   }
@@ -42,10 +42,10 @@ const seed2keyPair = async (seed: Buffer): Promise<KeyPair> => {
   };
 };
 
-const deriveContractAddress = async (
+const deriveContractAddress = (
   sopBytes: string,
   n = 0
-): Promise<string> => {
+): string => {
   const hash = blake2b(mergebuf(hexToBuf(sopBytes)), null, 32);
   const index = new Uint8Array([0, 0, 0, n]);
   const hash2 = blake2b(mergebuf(index, hash), null, 32);
@@ -72,7 +72,7 @@ const validBase58string = (base58string: string, prefix: string): boolean => {
 
 const validImplicitAddress = (address: string): boolean => {
   return (
-    address.length === 36 &&
+    address && address.length === 36 &&
     (validBase58string(address, 'tz1') ||
       validBase58string(address, 'tz2') ||
       validBase58string(address, 'tz3'))
@@ -80,7 +80,8 @@ const validImplicitAddress = (address: string): boolean => {
 };
 
 const validContractAddress = (address: string): boolean => {
-  return address.length === 36 && validBase58string(address, 'KT1');
+  return address && address.length === 36 &&
+    validBase58string(address, 'KT1');
 };
 
 const validAddress = (address: string): boolean => {

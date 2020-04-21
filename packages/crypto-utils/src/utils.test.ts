@@ -336,14 +336,20 @@ describe('#addressToHex', () => {
 
 describe('invalid address', () => {
   let address;
+  let hexed;
 
   beforeEach(() => {
     address = 'foobar';
   });
-
-  const hexed = addressToHex(address);
-
-  it('is true', () => {
-    expect(hexed).toThrowError(new TypeError('Invalid address'));
-  });
+  try {
+    hexed = addressToHex(address);
+  } catch (e) {
+    it('should throw error', () => {
+      expect(e).toMatchObject(new TypeError('Invalid address'));
+    });
+  } finally {
+    it('should be undefined', () => {
+      expect(hexed).toBeUndefined();
+    });
+  }
 });
