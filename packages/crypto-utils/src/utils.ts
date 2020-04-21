@@ -120,7 +120,7 @@ const sign = (bytes: string, sk: string): SignedOps => {
   };
 };
 
-const sigToEdsig = (sig: string): any => {
+const sigToEdsig = (sig: string): string => {
   return base58encode(hexToBuf(sig), _prefix.edsig);
 };
 

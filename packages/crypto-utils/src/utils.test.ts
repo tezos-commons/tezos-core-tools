@@ -92,25 +92,25 @@ describe('#mnemonic2seed', () => {
 });
 
 describe('#seed2keyPair', () => {
-  it('should return keyPair', async () => {
-    const keyPair = await seed2keyPair(seedRef);
+  it('should return keyPair', () => {
+    const keyPair = seed2keyPair(seedRef);
     expect(keyPair).toBeDefined();
     expect(keyPair).toEqual(keyPairRef);
   });
 });
 
 describe('#validMnemonic', () => {
-  it('should return true', async () => {
+  it('should return true', () => {
     const ans = validMnemonic(mnemonicRef);
     expect(ans).toBeDefined();
     expect(ans).toBeTruthy();
   });
-  it('should return false', async () => {
+  it('should return false', () => {
     const ans = validMnemonic(mnemonicRef.slice(1));
     expect(ans).toBeDefined();
     expect(ans).toBeFalsy();
   });
-  it('should return false', async () => {
+  it('should return false', () => {
     const ans = validMnemonic('');
     expect(ans).toBeDefined();
     expect(ans).toBeFalsy();
@@ -118,20 +118,20 @@ describe('#validMnemonic', () => {
 });
 
 describe('#validOperationHash', () => {
-  it('should return true', async () => {
-    const ans = validOperationHash(
+  it('should return true', () => {
+    const ans: boolean = validOperationHash(
       'oojCsV42BnPocd9hUctiC7fNa6r5EGABxJnF6bVow1ByCSX4z4E'
     );
     expect(ans).toBeDefined();
     expect(ans).toBeTruthy();
   });
-  it('should return false', async () => {
-    const ans = validOperationHash('o');
+  it('should return false', () => {
+    const ans: boolean = validOperationHash('o');
     expect(ans).toBeDefined();
     expect(ans).toBeFalsy();
   });
-  it('should return false', async () => {
-    const ans = validOperationHash(
+  it('should return false', () => {
+    const ans: boolean = validOperationHash(
       'oojCsV42BnPocd9hUctiC7fNa6r5EGABxJnF6bVow1ByCSX4zE4'
     );
     expect(ans).toBeDefined();
@@ -290,7 +290,7 @@ describe('#addressToHex', () => {
     });
 
     it('is true', () => {
-      var hexed = addressToHex(address);
+      const hexed = addressToHex(address);
       expect(hexed.slice(0, 2) === '00').toBe(true);
     });
   });
@@ -302,7 +302,7 @@ describe('#addressToHex', () => {
     });
 
     it('is true', () => {
-      var hexed = addressToHex(address);
+      const hexed = addressToHex(address);
       expect(hexed.slice(0, 2) === '01').toBe(true);
     });
   });
@@ -315,7 +315,7 @@ describe('#addressToHex', () => {
     });
 
     it('is true', () => {
-      var hexed = addressToHex(address);
+      const hexed = addressToHex(address);
       expect(hexed.slice(0, 2) === '02').toBe(true);
     });
   });
@@ -328,7 +328,7 @@ describe('#addressToHex', () => {
     });
 
     it('is true', () => {
-      var hexed = addressToHex(address);
+      const hexed = addressToHex(address);
       expect(hexed.slice(0, 2) === '01').toBe(true);
     });
   });
@@ -341,9 +341,7 @@ describe('invalid address', () => {
     address = 'foobar';
   });
 
-  var hexed = () => {
-    addressToHex(address);
-  };
+  const hexed = addressToHex(address);
 
   it('is true', () => {
     expect(hexed).toThrowError(new TypeError('Invalid address'));
