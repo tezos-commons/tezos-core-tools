@@ -1,11 +1,8 @@
-import {
-  hex2buf,
-  buf2hex
-} from './common';
+import { hexToBuf, bufToHex } from './common';
 
 describe('#hex2buf', () => {
   it('should return buf', () => {
-    const buf = hex2buf('01af');
+    const buf = hexToBuf('01af');
     expect(buf).toBeDefined();
     expect(JSON.stringify(buf)).toBe(JSON.stringify(Uint8Array.from([1, 175])));
   });
@@ -13,7 +10,7 @@ describe('#hex2buf', () => {
 
 describe('#buf2hex', () => {
   it('should return buf', () => {
-    const hex = buf2hex(Uint8Array.from([1, 175]));
+    const hex = bufToHex(Uint8Array.from([1, 175]));
     expect(hex).toBeDefined();
     expect(hex.toString()).toBe('01af');
   });

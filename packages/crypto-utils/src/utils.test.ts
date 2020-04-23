@@ -9,6 +9,7 @@ import {
   validOperationHash,
   validBase58string,
   sign,
+  addressToHex,
 } from './utils';
 
 describe('#generateMnemonic', () => {
@@ -91,25 +92,25 @@ describe('#mnemonic2seed', () => {
 });
 
 describe('#seed2keyPair', () => {
-  it('should return keyPair', async () => {
-    const keyPair = await seed2keyPair(seedRef);
+  it('should return keyPair', () => {
+    const keyPair = seed2keyPair(seedRef);
     expect(keyPair).toBeDefined();
     expect(keyPair).toEqual(keyPairRef);
   });
 });
 
 describe('#validMnemonic', () => {
-  it('should return true', async () => {
+  it('should return true', () => {
     const ans = validMnemonic(mnemonicRef);
     expect(ans).toBeDefined();
     expect(ans).toBeTruthy();
   });
-  it('should return false', async () => {
+  it('should return false', () => {
     const ans = validMnemonic(mnemonicRef.slice(1));
     expect(ans).toBeDefined();
     expect(ans).toBeFalsy();
   });
-  it('should return false', async () => {
+  it('should return false', () => {
     const ans = validMnemonic('');
     expect(ans).toBeDefined();
     expect(ans).toBeFalsy();
@@ -117,20 +118,20 @@ describe('#validMnemonic', () => {
 });
 
 describe('#validOperationHash', () => {
-  it('should return true', async () => {
-    const ans = validOperationHash(
+  it('should return true', () => {
+    const ans: boolean = validOperationHash(
       'oojCsV42BnPocd9hUctiC7fNa6r5EGABxJnF6bVow1ByCSX4z4E'
     );
     expect(ans).toBeDefined();
     expect(ans).toBeTruthy();
   });
-  it('should return false', async () => {
-    const ans = validOperationHash('o');
+  it('should return false', () => {
+    const ans: boolean = validOperationHash('o');
     expect(ans).toBeDefined();
     expect(ans).toBeFalsy();
   });
-  it('should return false', async () => {
-    const ans = validOperationHash(
+  it('should return false', () => {
+    const ans: boolean = validOperationHash(
       'oojCsV42BnPocd9hUctiC7fNa6r5EGABxJnF6bVow1ByCSX4zE4'
     );
     expect(ans).toBeDefined();
@@ -278,4 +279,77 @@ describe('#sign', () => {
     expect(signed.sig.length).toBe(signedRef.sig.length);
     expect(JSON.stringify(signed)).toBe(JSON.stringify(signedRef));
   });
+});
+
+describe('#addressToHex', () => {
+  describe('valid tz1 address', () => {
+    let address;
+
+    beforeEach(() => {
+      address = 'tz1NhJPtvaewKoRAzZWwMxydApkeDEVP1qyu';
+    });
+
+    it('is true', () => {
+      const hexed = addressToHex(address);
+      expect(hexed.slice(0, 2) === '00').toBe(true);
+    });
+  });
+  describe('valid tz2 address', () => {
+    let address;
+
+    beforeEach(() => {
+      address = 'tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m';
+    });
+
+    it('is true', () => {
+      const hexed = addressToHex(address);
+      expect(hexed.slice(0, 2) === '01').toBe(true);
+    });
+  });
+
+  describe('valid tz3 address', () => {
+    let address;
+
+    beforeEach(() => {
+      address = 'tz3adcvQaKXTCg12zbninqo3q8ptKKtDFTLv';
+    });
+
+    it('is true', () => {
+      const hexed = addressToHex(address);
+      expect(hexed.slice(0, 2) === '02').toBe(true);
+    });
+  });
+
+  describe('valid KT1 address', () => {
+    let address;
+
+    beforeEach(() => {
+      address = 'KT1RfycBPC4V9NJFr7RbUkEGsHbVmSaSJyeH';
+    });
+
+    it('is true', () => {
+      const hexed = addressToHex(address);
+      expect(hexed.slice(0, 2) === '01').toBe(true);
+    });
+  });
+});
+
+describe('invalid address', () => {
+  let address;
+  let hexed;
+
+  beforeEach(() => {
+    address = 'foobar';
+  });
+  try {
+    hexed = addressToHex(address);
+  } catch (e) {
+    it('should throw error', () => {
+      expect(e).toMatchObject(new TypeError('Invalid address'));
+    });
+  } finally {
+    it('should be undefined', () => {
+      expect(hexed).toBeUndefined();
+    });
+  }
 });

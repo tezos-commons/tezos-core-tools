@@ -4,10 +4,9 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "module": "commonjs",
-    "target": "es6",
-    "declaration": true,
-    "declarationMap": true,
-    "composite": true
+    "target": "es6"
   },
-  "references": []
+  "references": [
+    { "path": "../crypto-utils" }
+  ]
 }

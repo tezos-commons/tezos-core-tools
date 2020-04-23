@@ -1,5 +1,4 @@
 import * as Bs58check from 'bs58check';
-import { blake2b } from 'blakejs';
 
 const prefix = {
   tz1: new Uint8Array([6, 161, 159]),
@@ -22,7 +21,7 @@ const mergebuf = (b: Uint8Array, wm = Uint8Array.from([3])): Uint8Array => {
   return r;
 };
 
-const hex2buf = (hex: string): Uint8Array => {
+const hexToBuf = (hex: string): Uint8Array => {
   return Uint8Array.from(
     hex.match(/[\da-f]{2}/gi).map(function (h) {
       return parseInt(h, 16);
@@ -30,7 +29,7 @@ const hex2buf = (hex: string): Uint8Array => {
   );
 };
 
-const buf2hex = (buffer: Uint8Array): string => {
+const bufToHex = (buffer: Uint8Array): string => {
   const byteArray = Uint8Array.from(buffer),
     hexParts = [];
   for (let i = 0; i < byteArray.length; i++) {
@@ -45,7 +44,7 @@ const base58encode = (payload: Uint8Array, prefixx?: Uint8Array): string => {
   const n = new Uint8Array(prefixx.length + payload.length);
   n.set(prefixx);
   n.set(payload, prefixx.length);
-  return Bs58check.encode(Buffer.from(buf2hex(n), 'hex'));
+  return Bs58check.encode(Buffer.from(bufToHex(n), 'hex'));
 };
 
 const base58decode = (enc: string, prefixx: Uint8Array): Uint8Array => {
@@ -54,22 +53,16 @@ const base58decode = (enc: string, prefixx: Uint8Array): Uint8Array => {
   return n;
 };
 
-const hex2pk = (hex: string): string => {
-  return base58encode(hex2buf(hex.slice(2, 66)), prefix.edpk);
-};
-
-const pk2pkh = (pk: string): string => {
-  const pkDecoded = base58decode(pk, prefix.edpk);
-  return base58encode(blake2b(pkDecoded, null, 20), prefix.tz1);
+const hexToPk = (hex: string): string => {
+  return base58encode(hexToBuf(hex.slice(2, 66)), prefix.edpk);
 };
 
 export {
   base58encode,
   base58decode,
   mergebuf,
-  hex2buf,
-  hex2pk,
-  pk2pkh,
-  buf2hex,
+  hexToBuf,
+  hexToPk,
+  bufToHex,
   prefix,
 };

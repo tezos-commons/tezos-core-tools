@@ -1,4 +1,5 @@
 **/node_modules
 **/coverage
 .git
+.DS_Store
 *.log
