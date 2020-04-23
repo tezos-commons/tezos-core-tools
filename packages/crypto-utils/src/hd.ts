@@ -25,6 +25,9 @@ const deriveNode = (message: Buffer, key: Buffer): Node => {
 };
 
 const deriveRootNode = (seed: Buffer): Node => {
+  if (seed.length !== 64) {
+    throw new Error('Invalid seed size');
+  }
   const domainSeperator = Buffer.from('ed25519 seed');
   return deriveNode(seed, domainSeperator);
 };
