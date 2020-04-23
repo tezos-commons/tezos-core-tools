@@ -10,3 +10,8 @@ export interface SignedOps {
   edsig: string;
   sbytes: string;
 }
+
+export interface Node {
+  privateKey: string;
+  chainCode: string;
+}

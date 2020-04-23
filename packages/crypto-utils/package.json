@@ -33,6 +33,7 @@
     "bip39": "^3.0.2",
     "blakejs": "^1.1.0",
     "bs58check": "^2.1.2",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-auth": "^1.0.1"
   }
 }
