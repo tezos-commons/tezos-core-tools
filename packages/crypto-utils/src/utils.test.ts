@@ -1,7 +1,7 @@
 import {
   generateMnemonic,
-  mnemonic2seed,
-  seed2keyPair,
+  mnemonicToSeed,
+  seedToKeyPair,
   validMnemonic,
   validAddress,
   validImplicitAddress,
@@ -70,20 +70,20 @@ const keyPairRef = {
   pkh: 'tz1SCQXce8LwS6qK77ExAAUKY1HYd5EhJHC7',
 };
 
-describe('#mnemonic2seed', () => {
+describe('#mnemonicToSeed', () => {
   it('should return seed', () => {
-    const seed = mnemonic2seed(mnemonicRef);
+    const seed = mnemonicToSeed(mnemonicRef);
     expect(seed).toBeDefined();
     expect(seed).toEqual(seedRef);
   });
   it('should return another seed', () => {
-    const seed = mnemonic2seed(mnemonicRef, 'test');
+    const seed = mnemonicToSeed(mnemonicRef, 'test');
     expect(seed).toBeDefined();
     expect(seed).not.toEqual(seedRef);
   });
   it('should throw error', () => {
     try {
-      mnemonic2seed(mnemonicRef.slice(7));
+      mnemonicToSeed(mnemonicRef.slice(7));
       throw new Error("Didn't throw error");
     } catch (e) {
       expect(e.message).toEqual('InvalidMnemonic');
@@ -93,7 +93,7 @@ describe('#mnemonic2seed', () => {
 
 describe('#seed2keyPair', () => {
   it('should return keyPair', () => {
-    const keyPair = seed2keyPair(seedRef);
+    const keyPair = seedToKeyPair(seedRef);
     expect(keyPair).toBeDefined();
     expect(keyPair).toEqual(keyPairRef);
   });
