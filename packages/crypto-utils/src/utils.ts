@@ -23,11 +23,11 @@ const validMnemonic = (mnemonic: string): boolean => {
   return bip39.validateMnemonic(mnemonic);
 };
 
-const mnemonic2seed = (mnemonic: string, passphrase = ''): Buffer => {
+const mnemonic2seed = (mnemonic: string, passphrase = '', bip32Seed = false): Buffer => {
   if (!validMnemonic(mnemonic)) {
     throw new Error('InvalidMnemonic');
   }
-  return bip39.mnemonicToSeedSync(mnemonic, passphrase).slice(0, 32);
+  return bip39.mnemonicToSeedSync(mnemonic, passphrase).slice(0, bip32Seed ? 64 : 32);
 };
 
 const seed2keyPair = (seed: Buffer): KeyPair => {
