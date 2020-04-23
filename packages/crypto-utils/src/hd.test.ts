@@ -1,5 +1,5 @@
 import { seedToKeyPair, keyPairFromAccountIndex } from './hd';
-import { mnemonic2seed } from './utils';
+import { mnemonicToSeed } from './utils';
 
 const ed25519Ledger = {
   mnemonic:
@@ -40,7 +40,7 @@ const ed25519Ledger = {
   ],
 };
 
-const seed = mnemonic2seed(ed25519Ledger.mnemonic, null, true);
+const seed = mnemonicToSeed(ed25519Ledger.mnemonic, null, true);
 
 describe('#seedToKeyPair', () => {
   test.each(ed25519Ledger.derivations)(
