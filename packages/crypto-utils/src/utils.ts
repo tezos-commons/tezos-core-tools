@@ -98,11 +98,11 @@ const addressToHex = (address: string): string => {
   } else if (address.slice(0, 2) === 'KT') {
     return '01' + bufToHex(base58decode(address, _prefix.KT1)) + '00';
   } else if (address.slice(0, 3) === 'tz1') {
-    return '00' + bufToHex(base58decode(address, _prefix.tz1));
+    return '0000' + bufToHex(base58decode(address, _prefix.tz1));
   } else if (address.slice(0, 3) === 'tz2') {
-    return '01' + bufToHex(base58decode(address, _prefix.tz2));
+    return '0001' + bufToHex(base58decode(address, _prefix.tz2));
   } else if (address.slice(0, 3) === 'tz3') {
-    return '02' + bufToHex(base58decode(address, _prefix.tz3));
+    return '0002' + bufToHex(base58decode(address, _prefix.tz3));
   } else {
     throw new Error('Base58DecodingError');
   }

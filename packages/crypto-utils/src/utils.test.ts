@@ -303,7 +303,7 @@ describe('#addressToHex', () => {
 
     it('is true', () => {
       const hexed = addressToHex(address);
-      expect(hexed.slice(0, 2) === '01').toBe(true);
+      expect(hexed.slice(0, 4) === '0001').toBe(true);
     });
   });
 
@@ -316,7 +316,7 @@ describe('#addressToHex', () => {
 
     it('is true', () => {
       const hexed = addressToHex(address);
-      expect(hexed.slice(0, 2) === '02').toBe(true);
+      expect(hexed.slice(0, 4) === '0002').toBe(true);
     });
   });
 
