@@ -5,7 +5,7 @@ import { base58encode, prefix as _prefix } from './common';
 import { KeyPair, Node } from './interfaces';
 
 /*
-    Neutured HD derivations for Tezos (bip32-ed25519)
+    Hardened HD derivations for Tezos (bip32-ed25519)
 
     https://github.com/satoshilabs/slips/blob/master/slip-0010.md
     https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
