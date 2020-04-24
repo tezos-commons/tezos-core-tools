@@ -1,11 +1,7 @@
-import { 
-  base58decode,
-  bufToHex,
-  prefix
-} from '../../crypto-utils/src/common';
+import { base58decode, bufToHex, prefix } from '../../crypto-utils/src/common';
 import { addressToHex } from '../../crypto-utils/src/utils';
 
-const getContractDelegation = (pkh) => {
+const getContractDelegation = (pkh: string) => {
   let pkHex: string;
   if (pkh.slice(0, 2) === 'tz') {
     pkHex = '00' + bufToHex(base58decode(pkh, prefix.tz1));
@@ -13,78 +9,83 @@ const getContractDelegation = (pkh) => {
     pkHex = pkh;
   }
   return {
-    entrypoint: 'do', 
-    value:
-      [{ prim: 'DROP' },
+    entrypoint: 'do',
+    value: [
+      { prim: 'DROP' },
       {
         prim: 'NIL',
-        args: [{ prim: 'operation' }]
+        args: [{ prim: 'operation' }],
       },
       {
         prim: 'PUSH',
-        args:
-          [{ prim: 'key_hash' },
+        args: [
+          { prim: 'key_hash' },
           {
-            bytes:
-              pkHex
-          }]
+            bytes: pkHex,
+          },
+        ],
       },
-      { prim: 'SOME' }, { prim: 'SET_DELEGATE' },
-      { prim: 'CONS' }]
+      { prim: 'SOME' },
+      { prim: 'SET_DELEGATE' },
+      { prim: 'CONS' },
+    ],
   };
-}
+};
 
-const getContractPkhTransaction = (to, amount) => {
+const getContractPkhTransaction = (to: string, amount: string) => {
   return {
     entrypoint: 'do',
-    value:
-      [{ prim: 'DROP' },
+    value: [
+      { prim: 'DROP' },
       { prim: 'NIL', args: [{ prim: 'operation' }] },
       {
         prim: 'PUSH',
-        args:
-          [{ prim: 'key_hash' },
+        args: [
+          { prim: 'key_hash' },
           {
-            'bytes': addressToHex(to)
-          }]
+            bytes: addressToHex(to),
+          },
+        ],
       },
       { prim: 'IMPLICIT_ACCOUNT' },
       {
         prim: 'PUSH',
-        args:
-          [{ prim: 'mutez' }, { 'int': amount }]
+        args: [{ prim: 'mutez' }, { int: amount }],
       },
-      { prim: 'UNIT' }, { prim: 'TRANSFER_TOKENS' },
-      { prim: 'CONS' }]
+      { prim: 'UNIT' },
+      { prim: 'TRANSFER_TOKENS' },
+      { prim: 'CONS' },
+    ],
   };
-}
+};
 
-const getContractKtTransaction = (to, amount) => {
+const getContractKtTransaction = (to: string, amount: string) => {
   return {
     entrypoint: 'do',
-    value: [{ prim: 'DROP' },
-    { prim: 'NIL', args: [{ prim: 'operation' }] },
-    {
-      prim: 'PUSH',
-      args:
-        [{ prim: 'address' },
-        { 'bytes': addressToHex(to) }]
-    },
-    { prim: 'CONTRACT', args: [{ prim: 'unit' }] },
-    [{
-      prim: 'IF_NONE',
-      args:
-        [[[{ prim: 'UNIT' }, { prim: 'FAILWITH' }]],
-        []]
-    }],
-    {
-      prim: 'PUSH',
-      args: [{ prim: 'mutez' }, { 'int': amount }]
-    },
-    { prim: 'UNIT' }, { prim: 'TRANSFER_TOKENS' },
-    { prim: 'CONS' }]
+    value: [
+      { prim: 'DROP' },
+      { prim: 'NIL', args: [{ prim: 'operation' }] },
+      {
+        prim: 'PUSH',
+        args: [{ prim: 'address' }, { bytes: addressToHex(to) }],
+      },
+      { prim: 'CONTRACT', args: [{ prim: 'unit' }] },
+      [
+        {
+          prim: 'IF_NONE',
+          args: [[[{ prim: 'UNIT' }, { prim: 'FAILWITH' }]], []],
+        },
+      ],
+      {
+        prim: 'PUSH',
+        args: [{ prim: 'mutez' }, { int: amount }],
+      },
+      { prim: 'UNIT' },
+      { prim: 'TRANSFER_TOKENS' },
+      { prim: 'CONS' },
+    ],
   };
-}
+};
 
 const getManagerScript = (pkh: string) => {
   let pkHex: string;
@@ -105,38 +106,34 @@ const getManagerScript = (pkh: string) => {
                 prim: 'lambda',
                 args: [
                   {
-                    prim: 'unit'
+                    prim: 'unit',
                   },
                   {
                     prim: 'list',
                     args: [
                       {
-                        prim: 'operation'
-                      }
-                    ]
-                  }
+                        prim: 'operation',
+                      },
+                    ],
+                  },
                 ],
-                annots: [
-                  '%do'
-                ]
+                annots: ['%do'],
               },
               {
                 prim: 'unit',
-                annots: [
-                  '%default'
-                ]
-              }
-            ]
-          }
-        ]
+                annots: ['%default'],
+              },
+            ],
+          },
+        ],
       },
       {
         prim: 'storage',
         args: [
           {
-            prim: 'key_hash'
-          }
-        ]
+            prim: 'key_hash',
+          },
+        ],
       },
       {
         prim: 'code',
@@ -145,22 +142,22 @@ const getManagerScript = (pkh: string) => {
             [
               [
                 {
-                  prim: 'DUP'
+                  prim: 'DUP',
                 },
                 {
-                  prim: 'CAR'
+                  prim: 'CAR',
                 },
                 {
                   prim: 'DIP',
                   args: [
                     [
                       {
-                        prim: 'CDR'
-                      }
-                    ]
-                  ]
-                }
-              ]
+                        prim: 'CDR',
+                      },
+                    ],
+                  ],
+                },
+              ],
             ],
             {
               prim: 'IF_LEFT',
@@ -170,43 +167,41 @@ const getManagerScript = (pkh: string) => {
                     prim: 'PUSH',
                     args: [
                       {
-                        prim: 'mutez'
+                        prim: 'mutez',
                       },
                       {
-                        'int': '0'
-                      }
-                    ]
+                        int: '0',
+                      },
+                    ],
                   },
                   {
-                    prim: 'AMOUNT'
+                    prim: 'AMOUNT',
                   },
                   [
                     [
                       {
-                        prim: 'COMPARE'
+                        prim: 'COMPARE',
                       },
                       {
-                        prim: 'EQ'
-                      }
+                        prim: 'EQ',
+                      },
                     ],
                     {
                       prim: 'IF',
                       args: [
-                        [
-
-                        ],
+                        [],
                         [
                           [
                             {
-                              prim: 'UNIT'
+                              prim: 'UNIT',
                             },
                             {
-                              prim: 'FAILWITH'
-                            }
-                          ]
-                        ]
-                      ]
-                    }
+                              prim: 'FAILWITH',
+                            },
+                          ],
+                        ],
+                      ],
+                    },
                   ],
                   [
                     {
@@ -214,92 +209,89 @@ const getManagerScript = (pkh: string) => {
                       args: [
                         [
                           {
-                            prim: 'DUP'
-                          }
-                        ]
-                      ]
+                            prim: 'DUP',
+                          },
+                        ],
+                      ],
                     },
                     {
-                      prim: 'SWAP'
-                    }
+                      prim: 'SWAP',
+                    },
                   ],
                   {
-                    prim: 'IMPLICIT_ACCOUNT'
+                    prim: 'IMPLICIT_ACCOUNT',
                   },
                   {
-                    prim: 'ADDRESS'
+                    prim: 'ADDRESS',
                   },
                   {
-                    prim: 'SENDER'
+                    prim: 'SENDER',
                   },
                   [
                     [
                       {
-                        prim: 'COMPARE'
+                        prim: 'COMPARE',
                       },
                       {
-                        prim: 'EQ'
-                      }
+                        prim: 'EQ',
+                      },
                     ],
                     {
                       prim: 'IF',
                       args: [
-                        [
-
-                        ],
+                        [],
                         [
                           [
                             {
-                              prim: 'UNIT'
+                              prim: 'UNIT',
                             },
                             {
-                              prim: 'FAILWITH'
-                            }
-                          ]
-                        ]
-                      ]
-                    }
+                              prim: 'FAILWITH',
+                            },
+                          ],
+                        ],
+                      ],
+                    },
                   ],
                   {
-                    prim: 'UNIT'
+                    prim: 'UNIT',
                   },
                   {
-                    prim: 'EXEC'
+                    prim: 'EXEC',
                   },
                   {
-                    prim: 'PAIR'
-                  }
+                    prim: 'PAIR',
+                  },
                 ],
                 [
                   {
-                    prim: 'DROP'
+                    prim: 'DROP',
                   },
                   {
                     prim: 'NIL',
                     args: [
                       {
-                        prim: 'operation'
-                      }
-                    ]
+                        prim: 'operation',
+                      },
+                    ],
                   },
                   {
-                    prim: 'PAIR'
-                  }
-                ]
-              ]
-            }
-          ]
-        ]
-      }
+                    prim: 'PAIR',
+                  },
+                ],
+              ],
+            },
+          ],
+        ],
+      },
     ],
-    storage:
-      { bytes: pkHex }
+    storage: { bytes: pkHex },
   };
-}
+};
 
 export {
   getContractDelegation,
   getContractPkhTransaction,
   getContractKtTransaction,
-  getManagerScript
-}
+  getManagerScript,
+};
