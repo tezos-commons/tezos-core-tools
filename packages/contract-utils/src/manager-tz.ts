@@ -1,13 +1,8 @@
 import { base58decode, bufToHex, prefix } from '../../crypto-utils/src/common';
-import { addressToHex } from '../../crypto-utils/src/utils';
+import { addressToHex, validImplicitAddress } from '../../crypto-utils/src/utils';
+import { ContractCall, ContractOrigination } from './interfaces';
 
-const getContractDelegation = (pkh: string) => {
-  let pkHex: string;
-  if (pkh.slice(0, 2) === 'tz') {
-    pkHex = '00' + bufToHex(base58decode(pkh, prefix.tz1));
-  } else {
-    pkHex = pkh;
-  }
+const getContractDelegation = (address: string): ContractCall => {
   return {
     entrypoint: 'do',
     value: [
@@ -21,7 +16,7 @@ const getContractDelegation = (pkh: string) => {
         args: [
           { prim: 'key_hash' },
           {
-            bytes: pkHex,
+            bytes: addressToHex(address).slice(2),
           },
         ],
       },
@@ -32,7 +27,7 @@ const getContractDelegation = (pkh: string) => {
   };
 };
 
-const getContractPkhTransaction = (to: string, amount: string) => {
+const getContractPkhTransaction = (to: string, amount: string): ContractCall => {
   return {
     entrypoint: 'do',
     value: [
@@ -43,7 +38,7 @@ const getContractPkhTransaction = (to: string, amount: string) => {
         args: [
           { prim: 'key_hash' },
           {
-            bytes: addressToHex(to),
+            bytes: addressToHex(to).slice(2),
           },
         ],
       },
@@ -59,7 +54,7 @@ const getContractPkhTransaction = (to: string, amount: string) => {
   };
 };
 
-const getContractKtTransaction = (to: string, amount: string) => {
+const getContractKtTransaction = (to: string, amount: string): ContractCall => {
   return {
     entrypoint: 'do',
     value: [
@@ -87,13 +82,7 @@ const getContractKtTransaction = (to: string, amount: string) => {
   };
 };
 
-const getManagerScript = (pkh: string) => {
-  let pkHex: string;
-  if (pkh.slice(0, 2) === 'tz') {
-    pkHex = '00' + bufToHex(base58decode(pkh, prefix.tz1));
-  } else {
-    pkHex = pkh;
-  }
+const getManagerScript = (address: string): ContractOrigination => {
   return {
     code: [
       {
@@ -285,7 +274,7 @@ const getManagerScript = (pkh: string) => {
         ],
       },
     ],
-    storage: { bytes: pkHex },
+    storage: { bytes: addressToHex(address).slice(2) },
   };
 };
 
