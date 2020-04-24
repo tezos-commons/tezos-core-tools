@@ -1,8 +1,11 @@
-import { base58decode, bufToHex, prefix } from '../../crypto-utils/src/common';
-import { addressToHex, validImplicitAddress } from '../../crypto-utils/src/utils';
+import {
+  addressToHex,
+  validImplicitAddress,
+  validContractAddress,
+} from '../../crypto-utils/src/utils';
 import { ContractCall, ContractOrigination } from './interfaces';
 
-const getContractDelegation = (address: string): ContractCall => {
+const getContractUndelegation = (): ContractCall => {
   return {
     entrypoint: 'do',
     value: [
@@ -12,22 +15,49 @@ const getContractDelegation = (address: string): ContractCall => {
         args: [{ prim: 'operation' }],
       },
       {
-        prim: 'PUSH',
-        args: [
-          { prim: 'key_hash' },
-          {
-            bytes: addressToHex(address).slice(2),
-          },
-        ],
+        prim: 'NONE',
+        args: [{ prim: 'key_hash' }],
       },
-      { prim: 'SOME' },
       { prim: 'SET_DELEGATE' },
       { prim: 'CONS' },
     ],
   };
 };
 
-const getContractPkhTransaction = (to: string, amount: string): ContractCall => {
+const getContractDelegation = (address: string): ContractCall => {
+  return address === ''
+    ? getContractUndelegation()
+    : {
+      entrypoint: 'do',
+      value: [
+        { prim: 'DROP' },
+        {
+          prim: 'NIL',
+          args: [{ prim: 'operation' }],
+        },
+        {
+          prim: 'PUSH',
+          args: [
+            { prim: 'key_hash' },
+            {
+              bytes: addressToHex(address).slice(2),
+            },
+          ],
+        },
+        { prim: 'SOME' },
+        { prim: 'SET_DELEGATE' },
+        { prim: 'CONS' },
+      ],
+    };
+};
+
+const getContractPkhTransaction = (
+  to: string,
+  amount: string
+): ContractCall => {
+  if (!validImplicitAddress(to)) {
+    throw new Error('Expected tz address');
+  }
   return {
     entrypoint: 'do',
     value: [
@@ -55,6 +85,9 @@ const getContractPkhTransaction = (to: string, amount: string): ContractCall => 
 };
 
 const getContractKtTransaction = (to: string, amount: string): ContractCall => {
+  if (!validContractAddress(to)) {
+    throw new Error('Expected KT1 address');
+  }
   return {
     entrypoint: 'do',
     value: [
@@ -82,7 +115,10 @@ const getContractKtTransaction = (to: string, amount: string): ContractCall => {
   };
 };
 
-const getManagerScript = (address: string): ContractOrigination => {
+const getManagerScript = (pkh: string): ContractOrigination => {
+  if (!validImplicitAddress(pkh)) {
+    throw new Error('Expected tz address');
+  }
   return {
     code: [
       {
@@ -274,12 +310,13 @@ const getManagerScript = (address: string): ContractOrigination => {
         ],
       },
     ],
-    storage: { bytes: addressToHex(address).slice(2) },
+    storage: { bytes: addressToHex(pkh).slice(2) },
   };
 };
 
 export {
   getContractDelegation,
+  getContractUndelegation,
   getContractPkhTransaction,
   getContractKtTransaction,
   getManagerScript,
