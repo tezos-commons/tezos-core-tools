@@ -3,9 +3,11 @@ node_js:
   - "12"
   - "10"
 
+cache: npm
+
 install:
   - "npm ci"
-  - "npm bootstrap --ci"
+  - "lerna bootstrap --ci"
 
 before_script:
   - "npm run lint"
