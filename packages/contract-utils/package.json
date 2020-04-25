@@ -1,6 +1,6 @@
 {
   "name": "@tezos-core-tools/contract-utils",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Contract Utilities",
   "main": "dist/main.js",
   "scripts": {
