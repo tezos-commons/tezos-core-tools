@@ -14,26 +14,26 @@ describe('#getContractDelegation', () => {
     });
 
     it('returns with hexed tz', () => {
-      var pkHex = '00' + bufToHex(base58decode(pkh, prefix.tz1));
-      var expected = {
+      const pkHex = '00' + bufToHex(base58decode(pkh, prefix.tz1));
+      const expected = {
         entrypoint: 'do', 
         value:
           [{ prim: 'DROP' },
-          {
-            prim: 'NIL',
-            args: [{ prim: 'operation' }]
-          },
-          {
-            prim: 'PUSH',
-            args:
+            {
+              prim: 'NIL',
+              args: [{ prim: 'operation' }]
+            },
+            {
+              prim: 'PUSH',
+              args:
               [{ prim: 'key_hash' },
-              {
-                bytes:
+                {
+                  bytes:
                   pkHex
-              }]
-          },
-          { prim: 'SOME' }, { prim: 'SET_DELEGATE' },
-          { prim: 'CONS' }]
+                }]
+            },
+            { prim: 'SOME' }, { prim: 'SET_DELEGATE' },
+            { prim: 'CONS' }]
       };
       expect(getContractDelegation(pkh)).toEqual(expected);
     });
@@ -47,25 +47,25 @@ describe('#getContractDelegation', () => {
     });
 
     it('is true', () => {
-      var expected = {
+      const expected = {
         entrypoint: 'do', 
         value:
           [{ prim: 'DROP' },
-          {
-            prim: 'NIL',
-            args: [{ prim: 'operation' }]
-          },
-          {
-            prim: 'PUSH',
-            args:
+            {
+              prim: 'NIL',
+              args: [{ prim: 'operation' }]
+            },
+            {
+              prim: 'PUSH',
+              args:
               [{ prim: 'key_hash' },
-              {
-                bytes:
+                {
+                  bytes:
                   pkh
-              }]
-          },
-          { prim: 'SOME' }, { prim: 'SET_DELEGATE' },
-          { prim: 'CONS' }]
+                }]
+            },
+            { prim: 'SOME' }, { prim: 'SET_DELEGATE' },
+            { prim: 'CONS' }]
       };
       expect(getContractDelegation(pkh)).toEqual(expected);
     });

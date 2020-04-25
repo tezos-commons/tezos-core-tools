@@ -16,21 +16,21 @@ const getContractDelegation = (pkh) => {
     entrypoint: 'do', 
     value:
       [{ prim: 'DROP' },
-      {
-        prim: 'NIL',
-        args: [{ prim: 'operation' }]
-      },
-      {
-        prim: 'PUSH',
-        args:
+        {
+          prim: 'NIL',
+          args: [{ prim: 'operation' }]
+        },
+        {
+          prim: 'PUSH',
+          args:
           [{ prim: 'key_hash' },
-          {
-            bytes:
+            {
+              bytes:
               pkHex
-          }]
-      },
-      { prim: 'SOME' }, { prim: 'SET_DELEGATE' },
-      { prim: 'CONS' }]
+            }]
+        },
+        { prim: 'SOME' }, { prim: 'SET_DELEGATE' },
+        { prim: 'CONS' }]
   };
 }
 
@@ -39,23 +39,23 @@ const getContractPkhTransaction = (to, amount) => {
     entrypoint: 'do',
     value:
       [{ prim: 'DROP' },
-      { prim: 'NIL', args: [{ prim: 'operation' }] },
-      {
-        prim: 'PUSH',
-        args:
+        { prim: 'NIL', args: [{ prim: 'operation' }] },
+        {
+          prim: 'PUSH',
+          args:
           [{ prim: 'key_hash' },
-          {
-            'bytes': addressToHex(to)
-          }]
-      },
-      { prim: 'IMPLICIT_ACCOUNT' },
-      {
-        prim: 'PUSH',
-        args:
+            {
+              'bytes': addressToHex(to)
+            }]
+        },
+        { prim: 'IMPLICIT_ACCOUNT' },
+        {
+          prim: 'PUSH',
+          args:
           [{ prim: 'mutez' }, { 'int': amount }]
-      },
-      { prim: 'UNIT' }, { prim: 'TRANSFER_TOKENS' },
-      { prim: 'CONS' }]
+        },
+        { prim: 'UNIT' }, { prim: 'TRANSFER_TOKENS' },
+        { prim: 'CONS' }]
   };
 }
 
@@ -63,26 +63,26 @@ const getContractKtTransaction = (to, amount) => {
   return {
     entrypoint: 'do',
     value: [{ prim: 'DROP' },
-    { prim: 'NIL', args: [{ prim: 'operation' }] },
-    {
-      prim: 'PUSH',
-      args:
+      { prim: 'NIL', args: [{ prim: 'operation' }] },
+      {
+        prim: 'PUSH',
+        args:
         [{ prim: 'address' },
-        { 'bytes': addressToHex(to) }]
-    },
-    { prim: 'CONTRACT', args: [{ prim: 'unit' }] },
-    [{
-      prim: 'IF_NONE',
-      args:
+          { 'bytes': addressToHex(to) }]
+      },
+      { prim: 'CONTRACT', args: [{ prim: 'unit' }] },
+      [{
+        prim: 'IF_NONE',
+        args:
         [[[{ prim: 'UNIT' }, { prim: 'FAILWITH' }]],
-        []]
-    }],
-    {
-      prim: 'PUSH',
-      args: [{ prim: 'mutez' }, { 'int': amount }]
-    },
-    { prim: 'UNIT' }, { prim: 'TRANSFER_TOKENS' },
-    { prim: 'CONS' }]
+          []]
+      }],
+      {
+        prim: 'PUSH',
+        args: [{ prim: 'mutez' }, { 'int': amount }]
+      },
+      { prim: 'UNIT' }, { prim: 'TRANSFER_TOKENS' },
+      { prim: 'CONS' }]
   };
 }
 
