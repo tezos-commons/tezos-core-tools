@@ -31,10 +31,22 @@ const mnemonicToSeed = (mnemonic: string, passphrase = '', bip32Seed = false): B
 };
 
 const seedToKeyPair = (seed: Buffer): KeyPair => {
-  if (!seed) {
-    throw new Error('NullSeed');
+  if (!seed || !(seed.length === 32 || seed.length === 64)) {
+    throw new Error('Invalid seed');
   }
   const keyPair = naclSign.keyPair.fromSeed(seed);
+  return {
+    sk: base58encode(keyPair.secretKey, _prefix.edsk),
+    pk: base58encode(keyPair.publicKey, _prefix.edpk),
+    pkh: base58encode(blake2b(keyPair.publicKey, null, 20), _prefix.tz1),
+  };
+};
+
+const secretKeyToKeyPair = (sk: string): KeyPair => {
+  if (!validSecretKey) {
+    throw new Error('Invalid secret key');
+  }
+  const keyPair = naclSign.keyPair.fromSecretKey(base58decode(sk, _prefix.edsk));
   return {
     sk: base58encode(keyPair.secretKey, _prefix.edsk),
     pk: base58encode(keyPair.publicKey, _prefix.edpk),
@@ -92,6 +104,16 @@ const validOperationHash = (opHash: string): boolean => {
   return opHash.length === 51 && validBase58string(opHash, 'o');
 };
 
+const validPublicKey = (pk: string): boolean => {
+  return pk && pk.length === 54 &&
+    validBase58string(pk, 'edpk');
+};
+
+const validSecretKey = (sk: string): boolean => {
+  return sk && sk.length === 98 &&
+    validBase58string(sk, 'edsk');
+};
+
 const addressToHex = (address: string): string => {
   if (!validAddress(address)) {
     throw new TypeError('Invalid address');
@@ -121,11 +143,10 @@ const sign = (bytes: string, sk: string): SignedOps => {
   };
 };
 
-const sigToEdsig = (sig: string): string => {
-  return base58encode(hexToBuf(sig), _prefix.edsig);
-};
-
 const pkToPkh = (pk: string): string => {
+  if (!validPublicKey(pk)) {
+    throw new Error('Invalid public key')
+  }
   const pkDecoded = base58decode(pk, _prefix.edpk);
   return base58encode(blake2b(pkDecoded, null, 20), _prefix.tz1);
 };
@@ -139,10 +160,13 @@ export {
   validImplicitAddress,
   validContractAddress,
   validOperationHash,
+  validPublicKey,
+  validSecretKey,
   validBase58string,
   deriveContractAddress,
   sign,
-  sigToEdsig,
   addressToHex,
   pkToPkh,
+  secretKeyToKeyPair
 };
+

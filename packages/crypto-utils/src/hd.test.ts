@@ -1,5 +1,5 @@
 import { seedToKeyPair, keyPairFromAccountIndex } from './hd';
-import { mnemonicToSeed } from './utils';
+import { mnemonicToSeed, pkToPkh, secretKeyToKeyPair } from './utils';
 
 const ed25519Ledger = {
   mnemonic:
@@ -70,9 +70,13 @@ describe('#seedToKeyPair', () => {
     sk:
       'edskS31ZXzfzGBi1jEigpPvaWwVzwWCX3PNhx8FUpwY65SZC2oVmZ4iCHqwXCC6LBiGgdknhzJ6xAzHbpwQMEH3KKVjZ4aL4kw',
   };
+  const derivedKeyPair = keyPairFromAccountIndex(seed, 1);
   it('should return a key pair', () => {
-    expect(keyPairFromAccountIndex(seed, 1)).toEqual(
+    expect(derivedKeyPair).toEqual(
       keyPair
     );
   });
+  it('should derive everything from sk', () => {
+    expect(secretKeyToKeyPair(derivedKeyPair.sk)).toEqual(derivedKeyPair);
+  })
 });
