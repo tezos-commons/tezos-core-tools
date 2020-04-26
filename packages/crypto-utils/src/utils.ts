@@ -11,6 +11,56 @@ import {
   prefix as _prefix,
 } from './common';
 
+const validBase58string = (base58string: string, prefix: string): boolean => {
+  try {
+    let b58prefix: Uint8Array;
+    if (
+      base58string.slice(0, prefix.length) === prefix &&
+      Object.prototype.hasOwnProperty.call(_prefix, prefix)
+    ) {
+      b58prefix = _prefix[prefix];
+    } else {
+      return false;
+    }
+    base58decode(base58string, b58prefix);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const validImplicitAddress = (address: string): boolean => {
+  return (
+    address && address.length === 36 &&
+    (validBase58string(address, 'tz1') ||
+      validBase58string(address, 'tz2') ||
+      validBase58string(address, 'tz3'))
+  );
+};
+
+const validContractAddress = (address: string): boolean => {
+  return address && address.length === 36 &&
+    validBase58string(address, 'KT1');
+};
+
+const validAddress = (address: string): boolean => {
+  return validImplicitAddress(address) || validContractAddress(address);
+};
+
+const validOperationHash = (opHash: string): boolean => {
+  return opHash.length === 51 && validBase58string(opHash, 'o');
+};
+
+const validPublicKey = (pk: string): boolean => {
+  return pk && pk.length === 54 &&
+    validBase58string(pk, 'edpk');
+};
+
+const validSecretKey = (sk: string): boolean => {
+  return sk && sk.length === 98 &&
+    validBase58string(sk, 'edsk');
+};
+
 const generateMnemonic = (numberOfWords = 15): string => {
   if ([15, 18, 21, 24].indexOf(numberOfWords) !== -1) {
     return bip39.generateMnemonic((numberOfWords * 32) / 3);
@@ -62,56 +112,6 @@ const deriveContractAddress = (
   const index = new Uint8Array([0, 0, 0, n]);
   const hash2 = blake2b(mergebuf(index, hash), null, 32);
   return base58encode(hash2, _prefix.KT1);
-};
-
-const validBase58string = (base58string: string, prefix: string): boolean => {
-  try {
-    let b58prefix: Uint8Array;
-    if (
-      base58string.slice(0, prefix.length) === prefix &&
-      Object.prototype.hasOwnProperty.call(_prefix, prefix)
-    ) {
-      b58prefix = _prefix[prefix];
-    } else {
-      return false;
-    }
-    base58decode(base58string, b58prefix);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-const validImplicitAddress = (address: string): boolean => {
-  return (
-    address && address.length === 36 &&
-    (validBase58string(address, 'tz1') ||
-      validBase58string(address, 'tz2') ||
-      validBase58string(address, 'tz3'))
-  );
-};
-
-const validContractAddress = (address: string): boolean => {
-  return address && address.length === 36 &&
-    validBase58string(address, 'KT1');
-};
-
-const validAddress = (address: string): boolean => {
-  return validImplicitAddress(address) || validContractAddress(address);
-};
-
-const validOperationHash = (opHash: string): boolean => {
-  return opHash.length === 51 && validBase58string(opHash, 'o');
-};
-
-const validPublicKey = (pk: string): boolean => {
-  return pk && pk.length === 54 &&
-    validBase58string(pk, 'edpk');
-};
-
-const validSecretKey = (sk: string): boolean => {
-  return sk && sk.length === 98 &&
-    validBase58string(sk, 'edsk');
 };
 
 const addressToHex = (address: string): string => {
