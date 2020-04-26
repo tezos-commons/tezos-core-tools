@@ -1,5 +1,5 @@
 import { seedToKeyPair, keyPairFromAccountIndex } from './hd';
-import { mnemonicToSeed, pkToPkh, secretKeyToKeyPair } from './utils';
+import { mnemonicToSeed, secretKeyToKeyPair } from './utils';
 
 const ed25519Ledger = {
   mnemonic:
