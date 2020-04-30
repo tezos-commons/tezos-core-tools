@@ -2,6 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: './src/index.ts',
+  target: 'web',
   module: {
     rules: [
       {
@@ -17,5 +18,7 @@ module.exports = {
   output: {
     filename: 'main.js',
     path: path.resolve(__dirname, 'dist'),
+    library: 'cryptoUtils',
+    libraryTarget: 'umd'
   },
 };
