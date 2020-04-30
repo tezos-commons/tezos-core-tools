@@ -1,6 +1,6 @@
 {
   "name": "@tezos-core-tools/crypto-utils",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Crypto Utilities",
   "main": "dist/main.js",
   "scripts": {
