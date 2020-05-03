@@ -10,6 +10,8 @@ import {
   validBase58string,
   sign,
   addressToHex,
+  mnemonicToEntropy,
+  entropyToMnemonic
 } from './utils';
 
 describe('#generateMnemonic', () => {
@@ -352,4 +354,10 @@ describe('invalid address', () => {
       expect(hexed).toBeUndefined();
     });
   }
+});
+
+describe('#mnemonicToEntropy', () => {
+  it('should return mnemonic', () => {
+    expect(entropyToMnemonic(mnemonicToEntropy(mnemonicRef))).toBe(mnemonicRef);
+  });
 });

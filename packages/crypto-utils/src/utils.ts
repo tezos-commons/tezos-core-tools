@@ -80,6 +80,17 @@ const mnemonicToSeed = (mnemonic: string, passphrase = '', bip32Seed = false): B
   return bip39.mnemonicToSeedSync(mnemonic, passphrase).slice(0, bip32Seed ? 64 : 32);
 };
 
+const mnemonicToEntropy = (mnemonic: string): Uint8Array => {
+  if (!validMnemonic(mnemonic)) {
+    throw new Error('InvalidMnemonic');
+  }
+  return hexToBuf(bip39.mnemonicToEntropy(mnemonic));
+}
+
+const entropyToMnemonic = (entropy: Uint8Array): string => {
+  return bip39.entropyToMnemonic(bufToHex(entropy));
+}
+
 const seedToKeyPair = (seed: Buffer): KeyPair => {
   if (!seed || !(seed.length === 32 || seed.length === 64)) {
     throw new Error('Invalid seed');
@@ -167,6 +178,8 @@ export {
   sign,
   addressToHex,
   pkToPkh,
-  secretKeyToKeyPair
+  secretKeyToKeyPair,
+  mnemonicToEntropy,
+  entropyToMnemonic
 };
 
