@@ -2,7 +2,7 @@
   "name": "tezos-core-tools",
   "private": false,
   "devDependencies": {
-    "lerna": "^3.20.2"
+    "lerna": "^6.4.1"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
